@@ -25,7 +25,10 @@ func TestIsSlugAscii(t *testing.T) {
 
 	for _, test := range tests {
 		if IsSlugAscii(test.s) != test.b {
-			t.Error(test.s, "!=", test.b)
+			t.Errorf("IsSlugAscii(%q) != %t", test.s, test.b)
+		}
+		if IsSlugAsciiBytes([]byte(test.s)) != test.b {
+			t.Errorf("IsSlugAsciiBytes(%q) != %t", test.s, test.b)
 		}
 	}
 }

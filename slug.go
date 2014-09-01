@@ -108,3 +108,22 @@ func IsSlugAscii(s string) bool {
 	}
 	return !dash
 }
+
+// IsSlugAsciiBytes is equivalent to IsSlugAscii.
+func IsSlugAsciiBytes(s []byte) bool {
+	dash := true
+	for _, b := range s {
+		switch {
+		case b == '-':
+			if dash {
+				return false
+			}
+			dash = true
+		case 'a' <= b && b <= 'z', '0' <= b && b <= '9':
+			dash = false
+		default:
+			return false
+		}
+	}
+	return !dash
+}
