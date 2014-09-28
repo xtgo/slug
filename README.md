@@ -1,6 +1,6 @@
 # slug
 
-See the [API docs](http://go.pkgdoc.org/github.com/extemporalgenome/slug).
+See the [API docs](http://godoc.org/github.com/xtgo/slug).
 
 Latin-ish inputs should have very stable output. All inputs are passed through
 an NFKD transform, and anything still in the unicode Letter and Number
