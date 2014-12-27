@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package slug transforms strings into a normalized form well suited for use in URLs.
 package slug
 
 import (
-	"golang.org/x/text/unicode/norm"
 	"encoding/hex"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 var lat = []*unicode.RangeTable{unicode.Letter, unicode.Number}
