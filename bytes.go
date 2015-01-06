@@ -12,19 +12,21 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-// Slug replaces each run of characters which are not unicode letters or
+// SlugBytes replaces each run of characters which are not unicode letters or
 // numbers with a single hyphen, except for leading or trailing runs. Letters
 // will be stripped of diacritical marks and lowercased. Letter or number
 // codepoints that do not have combining marks or a lower-cased variant will
 // be passed through unaltered.
-func Slug(s string) string {
-	buf := make([]rune, 0, len(s))
+func SlugBytes(s []byte) []byte {
+	s = norm.NFKD.Bytes(s)
+	buf := make([]byte, 0, len(s))
 	dash := false
-	for _, r := range norm.NFKD.String(s) {
+	for len(s) > 0 {
+		r, i := utf8.DecodeRune(s)
 		switch {
 		// unicode 'letters' like mandarin characters pass through
 		case unicode.IsOneOf(lat, r):
-			buf = append(buf, unicode.ToLower(r))
+			buf = append(buf, s[:i]...)
 			dash = true
 		case unicode.IsOneOf(nop, r):
 			// skip
@@ -32,18 +34,22 @@ func Slug(s string) string {
 			buf = append(buf, '-')
 			dash = false
 		}
+		s = s[i:]
 	}
-	if i := len(buf) - 1; i >= 0 && buf[i] == '-' {
+	i := len(buf) - 1
+	if i >= 0 && buf[i] == '-' {
 		buf = buf[:i]
 	}
-	return string(buf)
+	return buf
 }
 
-// SlugAscii is identical to Slug, except that runs of one or more unicode
-// letters or numbers that still fall outside the ASCII range will have their
-// UTF-8 representation hex encoded and delimited by hyphens. As with Slug, in
-// no case will hyphens appear at either end of the returned string.
-func SlugAscii(s string) string {
+// SlugAsciiBytes is identical to SlugBytes, except that runs of one or more
+// unicode letters or numbers that still fall outside the ASCII range will have
+// their UTF-8 representation hex encoded and delimited by hyphens. As with
+// SlugBytes, in no case will hyphens appear at either end of the returned
+// string.
+func SlugAsciiBytes(s []byte) []byte {
+	s = norm.NFKD.Bytes(s)
 	const m = utf8.UTFMax
 	var (
 		ib    [m * 3]byte
@@ -52,7 +58,8 @@ func SlugAscii(s string) string {
 		dash  = false
 		latin = true
 	)
-	for _, r := range norm.NFKD.String(s) {
+	for len(s) > 0 {
+		r, i := utf8.DecodeRune(s)
 		switch {
 		case unicode.IsOneOf(lat, r):
 			r = unicode.ToLower(r)
@@ -80,24 +87,26 @@ func SlugAscii(s string) string {
 			dash = false
 			latin = true
 		}
+		s = s[i:]
 	}
-	if i := len(buf) - 1; i >= 0 && buf[i] == '-' {
+	i := len(buf) - 1
+	if i >= 0 && buf[i] == '-' {
 		buf = buf[:i]
 	}
-	return string(buf)
+	return buf
 }
 
-// IsSlugAscii returns true only if SlugAscii(s) == s.
-func IsSlugAscii(s string) bool {
+// IsSlugAsciiBytes is equivalent to IsSlugAscii.
+func IsSlugAsciiBytes(s []byte) bool {
 	dash := true
-	for _, r := range s {
+	for _, b := range s {
 		switch {
-		case r == '-':
+		case b == '-':
 			if dash {
 				return false
 			}
 			dash = true
-		case 'a' <= r && r <= 'z', '0' <= r && r <= '9':
+		case 'a' <= b && b <= 'z', '0' <= b && b <= '9':
 			dash = false
 		default:
 			return false
