@@ -39,6 +39,7 @@ func TestIsSlugAscii(t *testing.T) {
 
 func TestSlugAscii(t *testing.T) {
 	var tests = []struct{ in, out string }{
+		{"", ""},
 		{"ABC世界def-", "abc-e4b896e7958c-def"},
 		{"012世界", "012-e4b896e7958c"},
 		{"世界345", "e4b896e7958c-345"},
